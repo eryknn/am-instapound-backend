@@ -35,10 +35,5 @@ class Migration(migrations.Migration):
             model_name='user',
             name='email',
             field=models.EmailField(blank=True, max_length=254, null=True, unique=True, verbose_name='Adres email'),
-        ),
-        migrations.AlterField(
-            model_name='user',
-            name='id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
-        ),
+        )
     ]
