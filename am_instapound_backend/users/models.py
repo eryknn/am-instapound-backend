@@ -1,22 +1,30 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField
-from django.urls import reverse
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from am_instapound_backend.users.managers import UserManager
 
 
 class User(AbstractUser):
-    """Default user for AM Instapound Backend."""
+    objects = UserManager()  # we need custom UserManager because we do not have username field
 
-    #: First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
-    first_name = None  # type: ignore
-    last_name = None  # type: ignore
+    # we hold no personal info
+    first_name = None
+    last_name = None
 
-    def get_absolute_url(self):
-        """Get url for user's detail view.
+    # we want primary key to be called id so need to ignore pylint
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # pylint: disable=invalid-name
+    email = models.EmailField(_('Adres email'), blank=True, unique=True, null=True)  # type: ignore
+    picture = models.ImageField(upload_to='profile-pic', null=True)
 
-        Returns:
-            str: URL for user detail.
+    class Meta(AbstractUser.Meta):
+        abstract = False
+        ordering = ('email', 'username')
 
-        """
-        return reverse("users:detail", kwargs={"username": self.username})
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    def __str__(self):
+        return self.username
