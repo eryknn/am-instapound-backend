@@ -35,10 +35,10 @@ urlpatterns = [
 
 # API URLS
 urlpatterns += [
-    # swagger
-    path("docs/", schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # API base url
     path("api/", include("config.api_router")),
+    # swagger
+    path("docs/", schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # DRF auth token
     path("auth-token/", obtain_auth_token),
 ]

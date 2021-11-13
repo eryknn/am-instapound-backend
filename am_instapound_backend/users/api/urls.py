@@ -13,7 +13,7 @@ else:
     router = SimpleRouter()
 # pylint: enable=duplicate-code
 
-# router.register("users", <FILLME>)
+router.register("users", api_views.UserViewSet)
 
 urlpatterns = [
                   path('users/register/', api_views.RegistrationView.as_view(), name='register'),

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
@@ -7,10 +8,32 @@ from rest_framework.validators import UniqueValidator
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserProfileReadSerializer(serializers.ModelSerializer):
+    picture_message = _("Rozmiar zdjęcia nie powinien przekraczać 1Mb")
+
     class Meta:
         model = User
-        fields = ["username"]
+        fields = ["id", "username", "picture"]
+
+    def validate_picture(self, value):
+        value: InMemoryUploadedFile
+        if value.size > 1000000:  # 1mb - do zdjęcia profilowego, będzie ich dużo na liście komentarzy, nie chcemy mulić
+            raise ValidationError(self.picture_message, code='size_exceeded')
+        return value
+
+
+class ProfilePictureUploadSerializer(serializers.ModelSerializer):
+    picture_message = _("Rozmiar zdjęcia nie powinien przekraczać 1Mb")
+
+    class Meta:
+        model = User
+        fields = ["picture"]
+
+    def validate_picture(self, value):
+        value: InMemoryUploadedFile
+        if value.size > 1000000:  # 1mb - do zdjęcia profilowego, będzie ich dużo na liście komentarzy, nie chcemy mulić
+            raise ValidationError(self.picture_message, code='size_exceeded')
+        return value
 
 
 class RegistrationSerializer(serializers.Serializer):

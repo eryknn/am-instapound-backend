@@ -286,7 +286,7 @@ SWAGGER_SETTINGS = {
     'LOGOUT_URL': None,
     'SECURITY_DEFINITIONS': {
         'default': {
-            'type': 'Token',
+            'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
         }
