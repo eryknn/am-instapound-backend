@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "drf_yasg"
 ]
 
 LOCAL_APPS = [
@@ -268,7 +269,6 @@ SOCIALACCOUNT_ADAPTER = "am_instapound_backend.users.adapters.SocialAccountAdapt
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -278,3 +278,17 @@ REST_FRAMEWORK = {
 CORS_URLS_REGEX = r"^/api/.*$"
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+# drf-yasg
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'LOGIN_URL': None,
+    'LOGOUT_URL': None,
+    'SECURITY_DEFINITIONS': {
+        'default': {
+            'type': 'Token',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
