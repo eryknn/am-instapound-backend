@@ -18,6 +18,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # pylint: disable=invalid-name
     email = models.EmailField(_('Adres email'), blank=True, unique=True, null=True)  # type: ignore
     picture = models.ImageField(upload_to='profile-pic', null=True)
+    description = models.CharField(max_length=300, blank=True, default="")
 
     class Meta(AbstractUser.Meta):
         abstract = False
