@@ -37,10 +37,10 @@ urlpatterns = [
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
+    # DRF auth token
+    path("api/auth-token/", obtain_auth_token),
     # swagger
     path("docs/", schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    # DRF auth token
-    path("auth-token/", obtain_auth_token),
 ]
 
 if settings.DEBUG:
