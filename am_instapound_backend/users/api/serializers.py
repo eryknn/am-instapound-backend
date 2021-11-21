@@ -8,12 +8,19 @@ from rest_framework.validators import UniqueValidator
 User = get_user_model()
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    picture_message = _("Rozmiar zdjęcia nie powinien przekraczać 1Mb")
+class UserMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "picture", "description"]
+        fields = ["id", "username", "picture"]
+        read_only_fields = fields
+
+
+class UserProfileSerializer(UserMinimalSerializer):
+    picture_message = _("Rozmiar zdjęcia nie powinien przekraczać 1Mb")
+
+    class Meta(UserMinimalSerializer.Meta):
+        fields = UserMinimalSerializer.Meta.fields + ["description"]
         read_only_fields = [f for f in fields if f not in ['picture', 'description']]
 
     def validate_picture(self, value):

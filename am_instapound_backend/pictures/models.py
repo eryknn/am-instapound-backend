@@ -33,5 +33,6 @@ class PictureComment(UUIDModel):
         related_name='picture_comments',
         related_query_name='picture_comments'
     )
-    created_at = models.DateTimeField(auto_created=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     content = models.TextField()
