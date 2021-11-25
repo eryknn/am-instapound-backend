@@ -1,8 +1,13 @@
 from django.db.models import Count, Q
+from django.utils.translation import gettext_lazy as _
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins
+from rest_framework import mixins, status
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from am_instapound_backend.pictures.api.permissions import IsPictureCommentCreatorOrReadOnly, IsPictureCreatorOrReadOnly
@@ -52,6 +57,31 @@ class PictureViewSet(ModelViewSet):
     ])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+    @action(detail=True, methods=['POST', 'DELETE'], permission_classes=[IsAuthenticated])
+    def like(self, request: Request, *args, **kwargs):
+        picture: Picture = self.get_object()
+
+        if self.request.method == 'POST':
+            self.__like_picture(picture)
+        else:
+            self.__unlike_picture(picture)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def __like_picture(self, picture: Picture):
+        if picture.liked_by.filter(pk=self.request.user.id).exists():
+            raise ValidationError(detail=_('Picture is already liked.'))
+
+        picture.liked_by.add(self.request.user)
+        picture.save()
+
+    def __unlike_picture(self, picture: Picture):
+        if not picture.liked_by.filter(pk=self.request.user.id).exists():
+            raise ValidationError(detail=_('Picture is not liked.'))
+
+        picture.liked_by.remove(self.request.user)
+        picture.save()
 
 
 class PictureCommentViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
