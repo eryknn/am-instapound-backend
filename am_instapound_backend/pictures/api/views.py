@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from am_instapound_backend.pictures.api.permissions import IsPictureCommentCreatorOrReadOnly, IsPictureCreatorOrReadOnly
+from am_instapound_backend.pictures.api.permissions import IsPictureCommentCreatorOrReadOnly, IsPictureCreatorOrSafeOnly
 from am_instapound_backend.pictures.api.serializers import PictureListSerializer, PictureCreateSerializer, \
     PictureEditSerializer, PictureItemSerializer, PictureCommentCreateSerializer, PictureCommentEditSerializer
 from am_instapound_backend.pictures.models import Picture, PictureComment
@@ -21,7 +21,7 @@ class PictureViewSet(ModelViewSet):
     model = Picture
     queryset = Picture.objects.all()
     serializer_class = PictureListSerializer
-    permission_classes = [IsAuthenticated, IsPictureCreatorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsPictureCreatorOrSafeOnly]
 
     def get_queryset(self):
         qs = super().get_queryset().annotate(
@@ -58,7 +58,7 @@ class PictureViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @action(detail=True, methods=['POST', 'DELETE'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['POST', 'DELETE'])
     def like(self, request: Request, *args, **kwargs):
         picture: Picture = self.get_object()
 
