@@ -18,6 +18,7 @@ class Picture(UUIDModel):
         related_name='liked_pictures',
         related_query_name='liked_pictures'
     )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class PictureComment(UUIDModel):

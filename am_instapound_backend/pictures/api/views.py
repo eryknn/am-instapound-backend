@@ -1,4 +1,6 @@
 from django.db.models import Count, Q
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -7,6 +9,7 @@ from am_instapound_backend.pictures.api.permissions import IsPictureCommentCreat
 from am_instapound_backend.pictures.api.serializers import PictureListSerializer, PictureCreateSerializer, \
     PictureEditSerializer, PictureItemSerializer, PictureCommentCreateSerializer, PictureCommentEditSerializer
 from am_instapound_backend.pictures.models import Picture, PictureComment
+from am_instapound_backend.utils.helpers import is_valid_uuid
 
 
 class PictureViewSet(ModelViewSet):
@@ -22,12 +25,15 @@ class PictureViewSet(ModelViewSet):
         )
 
         if self.action in ['retrieve', 'list']:
-            qs.select_related('uploaded_by')
+            qs = qs.select_related('uploaded_by')
 
         if self.action == 'retrieve':
-            qs.prefetch_related('picture_comments', 'picture_comments__created_by')
+            qs = qs.prefetch_related('picture_comments', 'picture_comments__created_by')
 
-        return qs
+        if (user_id := self.request.query_params.get('uploaded_by')) is not None and is_valid_uuid(user_id):
+            qs = qs.filter(uploaded_by__id=user_id)
+
+        return qs.order_by('-uploaded_at')
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -39,11 +45,19 @@ class PictureViewSet(ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return PictureEditSerializer
 
+    @swagger_auto_schema(manual_parameters=[
+        openapi.Parameter(
+            'uploaded_by', openapi.IN_QUERY, "Filter pictures by user", required=False, type=openapi.TYPE_STRING
+        )
+    ])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class PictureCommentViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     model = PictureComment
     serializer_class = PictureCommentCreateSerializer
-    queryset = PictureComment.objects.all()
+    queryset = PictureComment.objects.all().order_by('created_at')
     permission_classes = [IsAuthenticated, IsPictureCommentCreatorOrReadOnly]
 
     def get_serializer_class(self):
