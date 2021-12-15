@@ -26,6 +26,7 @@ class PictureViewSet(ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset().annotate(
             like_count=Count('liked_by'),
+            comment_count=Count('picture_comments'),
             is_liked=Count('liked_by', filter=Q(liked_by__id=self.request.user.id))
         )
 

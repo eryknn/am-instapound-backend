@@ -56,11 +56,12 @@ class PictureCreateSerializer(PictureEditSerializer):
 
 class PictureListSerializer(PictureCreateSerializer):
     like_count = SerializerMethodField()
+    comment_count = SerializerMethodField()
     is_liked = SerializerMethodField()
     uploaded_by = UserMinimalSerializer(many=False, read_only=True)
 
     class Meta(PictureCreateSerializer.Meta):
-        fields = PictureCreateSerializer.Meta.fields + ['id', 'like_count', 'is_liked', 'uploaded_by']
+        fields = PictureCreateSerializer.Meta.fields + ['id', 'like_count', 'comment_count', 'is_liked', 'uploaded_by']
         read_only_fields = fields
 
     def get_is_liked(self, picture: Picture):
@@ -68,6 +69,9 @@ class PictureListSerializer(PictureCreateSerializer):
 
     def get_like_count(self, picture: Picture):
         return picture.like_count
+
+    def get_comment_count(self, picture: Picture):
+        return picture.comment_count
 
 
 class PictureItemSerializer(PictureListSerializer):
